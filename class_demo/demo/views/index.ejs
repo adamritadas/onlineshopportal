@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+
+    <script
+            src="https://code.jquery.com/jquery-3.2.1.js"
+            integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE="
+            crossorigin="anonymous"></script>
+
+
+
+    <script src="/socket.io/socket.io.js"></script>
+
+  </head>
+  <body>
+    <h1><%= title %></h1>
+    <p>Welcome to <%= title %></p>
+
+    <form>
+
+      <input type="text" placeholder="email@domain.com" id="email_txt"/>
+
+      <input type="password" id="password_txt"  />
+
+      <input type="submit" value="Login" id="submit_btn">
+
+    </form>
+
+    <script>
+
+        var socket = io();
+
+        socket.emit('initialized');
+        
+        $("#submit_btn").click(function () {
+
+            var email_val = $("#email_txt").val();
+            var password_val = $("#password_txt").val();
+
+            socket.emit('req_login', {
+                email : email_val,
+                password : password_val
+            });
+
+            return false;//to stop reloading page (due to form submission)
+        });
+
+        socket.on('res_login', function (params) {
+          if(params.validated == true) {
+              window.location.href = "/products";
+          }else {
+              alert('Ops! Something went wrong!');
+          }
+        });
+
+    </script>
+
+  </body>
+</html>

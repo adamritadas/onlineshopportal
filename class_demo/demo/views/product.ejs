@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+
+    <link href="bootstrap/css/bootstrap.css" rel="stylesheet">
+
+    <script
+            src="https://code.jquery.com/jquery-3.2.1.js"
+            integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE="
+            crossorigin="anonymous"></script>
+
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script src="bootstrap/js/bootstrap.js"></script>
+
+
+</head>
+<body>
+<h1><%= title %></h1>
+<p>Welcome to <%= title %></p>
+
+<!--form-->
+<div class="row">
+    <div class="col-xs-6">
+        <div class="panel panel-default">
+            <!-- Default panel contents -->
+            <div class="panel-heading">Add Items to Inventory</div>
+            <div class="panel-body">
+                <form>
+                    <div class="input-group">
+                        <span class="input-group-addon">Product Name</span>
+                        <input type="text" required class="form-control" placeholder="Product Name" aria-describedby="basic-addon1" id="txt_product_name">
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon">Product Quantity</span>
+                        <input type="text" required class="form-control" placeholder="Product Quantity" aria-describedby="basic-addon1" id="txt_product_qty">
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon">Product Price/Unit</span>
+                        <input type="text" required class="form-control" placeholder="Product Price/Unit" aria-describedby="basic-addon1" id="txt_product_price">
+                    </div>
+                    <p></p>
+                    <button type="submit" class="btn btn-primary" id="btn_submit">Add Item</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--table-->
+
+<div class="row">
+    <div class="col-lg-16 col-md-16 col-sm-16 col-xs-16">
+        <div class="panel panel-default">
+            <!-- Default panel contents -->
+            <div class="panel-heading">Inventory</div>
+            <div class="panel-body">
+                <!-- Table -->
+                <table class="table">
+                    <thead>
+                    <td>Product</td>
+                    <td>Quantity</td>
+                    <td>Price/Unit</td>
+                    <td>Edit</td>
+                    <td>Delete</td>
+                    </thead>
+                    <tbody>
+                        <% products.forEach(function (item, index) { %>
+                            <tr>
+                                <td><%= item.product_name%></td>
+                                <td><%= item.product_price%></td>
+                                <td><%= item.product_quantity%></td>
+                                <td><a>Edit</a></td>
+                                <td><a>Delete</a></td>
+                            </tr>
+                        <%
+                        });
+                        %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--IDW-WS-2017-FSDWJS-MatriculationNumber-->
+
+
+<script>
+
+    var socket = io();
+
+    socket.emit('initialized');
+
+    $("#btn_submit").click(function () {
+        var product_name_val = $("#txt_product_name").val();
+        var product_price_val = $("#txt_product_price").val();
+        var product_quantity_val = $("#txt_product_qty").val();
+
+        var params = {
+            product_name : product_name_val,
+            product_price : product_price_val,
+            product_quantity : product_quantity_val
+        };
+
+        socket.emit('req_product_add', params);
+
+        return false;
+    });
+    
+    socket.on('res_product_add', function (params) {
+        if(params.added == true) {
+            var row = $('<tr></tr>');
+
+            var name = $('<td></td>');
+            name.html($("#txt_product_name").val());
+            row.append(name);
+            $("#txt_product_name").val('');
+
+            var quantity = $('<td></td>');
+            quantity.html($("#txt_product_qty").val());
+            row.append(quantity);
+            $("#txt_product_qty").val('');
+
+            var price = $('<td></td>');
+            price.html($("#txt_product_price").val());
+            row.append(price);
+            $("#txt_product_price").val('');
+
+            var edit_a = $('<td><a>Edit</a></td>');
+            row.append(edit_a);
+
+            var delete_a = $('<td><a>Delete</a></td>');
+            row.append(delete_a);
+
+            $("tbody").append(row);
+        }else {
+            alert('Ops! Something went wrong.');
+        }
+    });
+
+</script>
+
+</body>
+</html>
